@@ -1,6 +1,7 @@
 - First specification for Tiny Basic was made by Dennis Alison. Made in response to Bill gates ragging about people pirating software. So they decided to make a lightweight portable version that was free.
 
 - How is the problem to be solved? Divide and Conquer. 
+
 # Breakdown of problem": 
 * Supervisor - determines what is to be done next. Receives controls when BASIC is loaded. 
 * Program line editor: Input storage. 
