@@ -8,6 +8,15 @@ class Token:
         self.text = tokenText   # The token's actual text. Used for identifiers, strings, and numbers.
         self.kind = tokenKind   # The TokenType that this token is classified as.
 
+
+    @staticmethod
+    def checkIfKeyword(tokenText):
+        for kind in TokenType:
+            # Relies on all keyword enum values being 1XX.
+            if kind.name == tokenText and kind.value >= 100 and kind.value < 200:
+                return kind
+        return None
+        
 # TokenType is our enum for all the types of tokens.
 class TokenType(enum.Enum):
 	EOF = -1
@@ -80,7 +89,7 @@ class Lexer:
             return '\0'
         return self.source[self.curPos + 1]
 
-  
+
 		
     # Skip whitespace except newlines, which we will use to indicate the end of a statement.
     def skipWhitespace(self):
@@ -88,8 +97,14 @@ class Lexer:
             self.nextChar()
 		
     # Skip comments in the code.
+    # We don't want to ignore the newline as this could be important. 
+    # Even though newline is associated with comment. 
+    # Could bring us to the next line of code for example.
     def skipComment(self):
-        pass
+        if self.curChar == '#':
+            while self.curChar != '\n':
+                self.nextChar()
+
 
     # Return the next token.
     def getToken(self):
@@ -97,6 +112,8 @@ class Lexer:
         # If it is a multiple character operator (e.g., !=), number, identifier, or keyword then we will process the rest.
         
         self.skipWhitespace()
+        self.skipComment()
+        token = None
 
 
         if self.curChar == '+':
@@ -148,6 +165,56 @@ class Lexer:
                 token = Token(lastChar + self.curChar, TokenType.NOTEQ)
             else:
                 self.abort("Expected !=, got !" + self.peek())
+        
+        elif self.curChar == '\"':
+            # Get characters between quotations.
+            self.nextChar()
+            # set integer value of current position -> uses this in tokText
+            startPos = self.curPos
+
+            while self.curChar != '\"':
+                # Don't allow special characters in the string. No escape characters, newlines, tabs, or %.
+                # We will be using C's printf on this string.
+                if self.curChar == '\r' or self.curChar == '\n' or self.curChar == '\t' or self.curChar == '\\' or self.curChar == '%':
+                    self.abort("Illegal character in string.")
+                self.nextChar()
+
+            tokText = self.source[startPos : self.curPos] # Get the substring.
+            token = Token(tokText, TokenType.STRING)
+        
+        elif self.curChar.isdigit():
+            # Leading character is a digit, so this must be a number.
+            # Get all consecutive digits and decimal if there is one.
+            startPos = self.curPos
+            while self.peek().isdigit():
+                self.nextChar()
+            if self.peek() == '.': # Decimal!
+                self.nextChar()
+
+                # Must have at least one digit after decimal.
+                if not self.peek().isdigit(): 
+                    # Error!
+                    self.abort("Illegal character in number.")
+                while self.peek().isdigit():
+                    self.nextChar()
+
+            tokText = self.source[startPos : self.curPos + 1] # Get the substring.
+            token = Token(tokText, TokenType.NUMBER)
+        
+        elif self.curChar.isalpha():
+            # Leading character is a letter, so this must be an identifier or a keyword.
+            # Get all consecutive alpha numeric characters.
+            startPos = self.curPos
+            while self.peek().isalnum():
+                self.nextChar()
+
+            # Check if the token is in the list of keywords.
+            tokText = self.source[startPos : self.curPos + 1] # Get the substring.
+            keyword = Token.checkIfKeyword(tokText)
+            if keyword == None: # Identifier
+                token = Token(tokText, TokenType.IDENT)
+            else:   # Keyword
+                token = Token(tokText, keyword)
         
         
         elif self.curChar == '\n':
