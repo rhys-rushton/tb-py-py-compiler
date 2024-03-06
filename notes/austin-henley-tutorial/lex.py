@@ -10,13 +10,15 @@ class Token:
 
 
     @staticmethod
+    # This is a static method because we want to keyword check
+    # without having to make a TokenType instance
     def checkIfKeyword(tokenText):
         for kind in TokenType:
             # Relies on all keyword enum values being 1XX.
             if kind.name == tokenText and kind.value >= 100 and kind.value < 200:
                 return kind
         return None
-        
+
 # TokenType is our enum for all the types of tokens.
 class TokenType(enum.Enum):
 	EOF = -1
