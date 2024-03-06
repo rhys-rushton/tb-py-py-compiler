@@ -15,8 +15,7 @@ A statement is show below:
 - String is a type of token from the lexer.
 
 The statement rule can be expanded so that there are multiple options: 
-```statement ::= "PRINT" (expression | string) nl
-    | "LET" ident "=" expression nl```
+```statement ::= "PRINT" (expression | string) nl "LET" ident "=" expression nl```
 
 
 
