@@ -35,3 +35,7 @@ So far I havel the below list of resources as outlined in Austin Henley's blog p
 * [Crafting Interpreters](https://www.craftinginterpreters.com/contents.html)
 * [Compiler Building](https://compilers.iecc.com/crenshaw/)
 * [Learn about Tiny BASIC](https://en.wikipedia.org/wiki/Tiny_BASIC)
+
+
+# Notes 
+up to page 2 - just done the checkToken/checkPeek functions for parser
